@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="de">
+<head><meta charset="utf-8"><title>Start</title></head>
+<body>
+<h1>Willkommen</h1>
+<div id="hero"></div>
+<nav>
+<a href="gallery.html">Private Galerie</a>
+</nav>
+
+<script>
+const heroIds = ['FILE_ID_1','FILE_ID_2','FILE_ID_3'];
+const rand = heroIds[Math.floor(Math.random()*heroIds.length)];
+
+async function showHero(id) {
+// Versuche Passwort aus sessionStorage (falls schon eingegeben)
+const pw = sessionStorage.getItem('gallery_pw') || '';
+const res = await fetch('/.netlify/functions/getPhoto?id=' + encodeURIComponent(id), {
+headers: { 'x-gallery-password': pw }
+});
+if (!res.ok) return; // wenn kein pw, wird nichts geladen
+const blob = await res.blob();
+const url = URL.createObjectURL(blob);
+const img = document.createElement('img');
+img.src = url; img.style.width = '100%';
+document.getElementById('hero').appendChild(img);
+}
+
+showHero(rand);
+</script>
+</body>
+</html>
