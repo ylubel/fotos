@@ -1,32 +1,76 @@
 <!doctype html>
-<html lang="de">
-<head><meta charset="utf-8"><title>Start</title></head>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>My Trips — Minimal</title>
+  <style>
+    body { margin: 0; font-family: sans-serif; background: #fafafa; color: #111; }
+    header { padding: 30px 20px; border-bottom: 1px solid #e5e5e5; }
+    h1 { margin: 0; font-size: 26px; font-weight: 600; }
+    .container { max-width: 860px; margin: 30px auto; padding: 0 20px; }
+
+    .featured { margin-bottom: 40px; cursor: pointer; }
+    .featured-title { font-size: 18px; margin-bottom: 10px; color: #555; }
+    .featured img { width: 100%; border-radius: 4px; }
+
+    .folders { display: flex; flex-direction: column; gap: 22px; }
+    .folder { border: 1px solid #e5e5e5; background: white; padding: 18px; text-decoration: none; color: #111; border-radius: 4px; transition: border 0.15s ease; display: flex; flex-direction: column; gap: 10px; }
+    .folder:hover { border-color: #111; }
+    .thumb-grid { display: flex; flex-direction: row; gap: 8px; overflow-x: auto; padding-bottom: 4px; }
+    .thumb-grid img { width: 120px; height: 90px; object-fit: cover; border-radius: 4px; flex: 0 0 auto; }
+    .folder { border: 1px solid #e5e5e5; background: white; padding: 18px; text-decoration: none; color: #111; border-radius: 4px; transition: border 0.15s ease; display: flex; flex-direction: column; gap: 10px; }
+    .folder:hover { border-color: #111; }
+    .thumb-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
+    .thumb-grid img { width: 100%; height: 65px; object-fit: cover; border-radius: 3px; }
+    .folder-title { font-weight: 600; font-size: 15px; }
+    .folder-count { color: #777; font-size: 13px; }
+  </style>
+</head>
 <body>
-<h1>Willkommen</h1>
-<div id="hero"></div>
-<nav>
-<a href="gallery.html">Private Galerie</a>
-</nav>
+  <header><h1>My Trips</h1></header>
 
-<script>
-const heroIds = ['FILE_ID_1','FILE_ID_2','FILE_ID_3'];
-const rand = heroIds[Math.floor(Math.random()*heroIds.length)];
+  <div class="container">
+    <div id="featured" class="featured">
+      <div class="featured-title">Featured Photo</div>
+      <img id="featured-img" src="" alt="Featured photo" />
+    </div>
+    <div class="folders" id="folder-list"></div>
+  </div>
 
-async function showHero(id) {
-// Versuche Passwort aus sessionStorage (falls schon eingegeben)
-const pw = sessionStorage.getItem('gallery_pw') || '';
-const res = await fetch('/.netlify/functions/getPhoto?id=' + encodeURIComponent(id), {
-headers: { 'x-gallery-password': pw }
-});
-if (!res.ok) return; // wenn kein pw, wird nichts geladen
-const blob = await res.blob();
-const url = URL.createObjectURL(blob);
-const img = document.createElement('img');
-img.src = url; img.style.width = '100%';
-document.getElementById('hero').appendChild(img);
-}
+  <script>
+    const trips = {
+      "Iceland 2023": ["assets/iceland/photo1.jpg", "assets/iceland/photo2.jpg", "assets/iceland/photo3.jpg"],
+      "Japan 2022": ["assets/japan/photo1.jpg", "assets/japan/photo2.jpg", "assets/japan/photo3.jpg"],
+      "Canada 2021": ["assets/canada/photo1.jpg", "assets/canada/photo2.jpg", "assets/canada/photo3.jpg"]
+    };
 
-showHero(rand);
-</script>
+    const folderNames = Object.keys(trips);
+    const randomFolder = folderNames[Math.floor(Math.random() * folderNames.length)];
+    const photos = trips[randomFolder];
+    const randomPhoto = photos[Math.floor(Math.random() * photos.length)];
+
+    const featuredImg = document.getElementById('featured-img');
+    featuredImg.src = randomPhoto;
+
+    const featuredBox = document.getElementById('featured');
+    const folderLink = randomFolder.replace(/\s+/g, '_') + '.html';
+    featuredBox.onclick = () => window.location.href = folderLink;
+
+    const folderList = document.getElementById('folder-list');
+    Object.entries(trips).forEach(([name, images]) => {
+      const link = document.createElement('a');
+      link.className = 'folder';
+      link.href = name.replace(/\s+/g, '_') + '.html';
+
+      const thumbs = images.slice(0, 3).map(img => '<img src="' + img + '">').join('');
+
+      link.innerHTML = '<div class="folder-title">' + name + '</div>' +
+                       '<div class="folder-count">' + images.length + ' photos</div>' +
+                       '<div class="thumb-grid">' + thumbs + '</div>';
+
+      folderList.appendChild(link);
+    });
+  </script>
 </body>
 </html>
